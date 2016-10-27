@@ -1,0 +1,1 @@
+java -cp ..\PozigunJavaLab3\target\inv_idx-1.0-jar-with-dependencies.jar inv_idx.InvertedIndex -p ..\PozigunJavaLab3\testFolder 
