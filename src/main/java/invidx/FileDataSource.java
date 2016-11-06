@@ -1,4 +1,4 @@
-package inv_idx;
+package invidx;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class FileDataSource implements DataSource {
         fileName = fName;
     }
 
-    public String getID() {
+    public String getId() {
         return fileName;
     }
 

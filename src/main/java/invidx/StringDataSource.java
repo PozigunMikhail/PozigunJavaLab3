@@ -1,4 +1,4 @@
-package inv_idx;
+package invidx;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class StringDataSource implements DataSource {
         strData = str;
     }
 
-    public String getID() {
+    public String getId() {
         return strData;
     }
 

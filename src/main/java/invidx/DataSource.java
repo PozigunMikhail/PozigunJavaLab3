@@ -1,10 +1,10 @@
-package inv_idx;
+package invidx;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public interface DataSource {
-    String getID();
+    String getId();
 
     InputStream getInputStream() throws IOException;
 }
