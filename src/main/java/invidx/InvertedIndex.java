@@ -17,6 +17,7 @@ public class InvertedIndex {
                     invIdxMap.putIfAbsent(wordFromStr, new ArrayList<>());
                     if (!invIdxMap.get(wordFromStr).contains(dataSrc)) {
                         invIdxMap.get(wordFromStr).add(dataSrc);
+                        invIdxMap.get(wordFromStr).sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
                     }
                 }
             }
@@ -72,11 +73,10 @@ public class InvertedIndex {
             Comparator<DataSource> cmp = (o1, o2) -> o1.getId().compareTo(o2.getId());
             for (String word : wordsList) {
                 word = word.toLowerCase();
-                invIdxMap.get(word).sort(cmp);
                 if (intersectionDataSrcList.isEmpty()) {
-                    intersectionDataSrcList.addAll(invIdxMap.get(word));
+                    intersectionDataSrcList.addAll(getDataSourceList(word));
                 } else {
-                    intersectSortedLists(intersectionDataSrcList, invIdxMap.get(word), cmp);
+                    intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), cmp);
                     if (intersectionDataSrcList.isEmpty()) {
                         break;
                     }
