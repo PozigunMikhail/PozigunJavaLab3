@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 
 public class InvertedIndex {
-    private Map<String, Set<String>> invIdxMap = new HashMap<>();
+    private Map<String, List<DataSource>> invIdxMap = new HashMap<>();
 
     public void indexDataSource(DataSource dataSrc) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(dataSrc.getInputStream()))) {
@@ -14,10 +14,10 @@ public class InvertedIndex {
             while ((str = in.readLine()) != null) {
                 for (String wordFromStr : str.trim().split("\\W+")) {
                     wordFromStr = wordFromStr.toLowerCase();
-                    if (!invIdxMap.containsKey(wordFromStr)) {
-                        invIdxMap.put(wordFromStr, new HashSet<String>());
+                    invIdxMap.putIfAbsent(wordFromStr, new ArrayList<>());
+                    if (!invIdxMap.get(wordFromStr).contains(dataSrc)) {
+                        invIdxMap.get(wordFromStr).add(dataSrc);
                     }
-                    invIdxMap.get(wordFromStr).add(dataSrc.getId());
                 }
             }
         }
@@ -41,40 +41,63 @@ public class InvertedIndex {
         return true;
     }
 
-    public Set<String> getDataSourceSet(String word) {
-        return invIdxMap.get(word) == null ? null : new HashSet<>(invIdxMap.get(word));
+    public List<DataSource> getDataSourceList(String word) {
+        return !invIdxMap.containsKey(word) ? null : Collections.unmodifiableList(invIdxMap.get(word));
     }
 
-    public Set<String> getQueryResult(String[] words) {
-        Set<String> intersectionDataSrcSet = new HashSet<>();
+    private static <T> void intersectSortedLists(List<T> list1, List<T> list2, Comparator<T> cmp) {
+        List<T> intersectionList = new ArrayList<>();
+        int idx1 = 0;
+        int idx2 = 0;
+        while (idx1 != list1.size() && idx2 != list2.size()) {
+            if (cmp.compare(list1.get(idx1), list2.get(idx2)) > 0) {
+                idx2++;
+            } else if (cmp.compare(list1.get(idx1), list2.get(idx2)) < 0) {
+                idx1++;
+            } else {
+                intersectionList.add(list1.get(idx1));
+                idx1++;
+                idx2++;
+            }
+        }
+        list1.clear();
+        list1.addAll(intersectionList);
+    }
+
+    public List<DataSource> getQueryResult(String[] words) {
+        List<DataSource> intersectionDataSrcList = new ArrayList<>();
         if (containsAllWords(words)) {
-            for (String word : words) {
+            List<String> wordsList = new ArrayList<>(Arrays.asList(words));
+            wordsList.sort((o1, o2) -> getDataSourceList(o1.toLowerCase()).size() - getDataSourceList(o2.toLowerCase()).size());
+            Comparator<DataSource> cmp = (o1, o2) -> o1.getId().compareTo(o2.getId());
+            for (String word : wordsList) {
                 word = word.toLowerCase();
-                if (intersectionDataSrcSet.isEmpty()) {
-                    intersectionDataSrcSet.addAll(getDataSourceSet(word));
+                invIdxMap.get(word).sort(cmp);
+                if (intersectionDataSrcList.isEmpty()) {
+                    intersectionDataSrcList.addAll(invIdxMap.get(word));
                 } else {
-                    intersectionDataSrcSet.retainAll(getDataSourceSet(word));
+                    intersectSortedLists(intersectionDataSrcList, invIdxMap.get(word), cmp);
+                    if (intersectionDataSrcList.isEmpty()) {
+                        break;
+                    }
                 }
             }
         }
-        return intersectionDataSrcSet;
-    }
-
-    private void printQueryResult(Set<String> dataSourceIdSet) {
-        if (dataSourceIdSet.isEmpty()) {
-            System.out.println("Not found in any data source.");
-        } else {
-            for (String dataSourceId : dataSourceIdSet) {
-                System.out.println(dataSourceId);
-            }
-        }
+        return intersectionDataSrcList;
     }
 
     private void queryProcessing(InputStream inStream) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(inStream))) {
             String str;
             while ((str = in.readLine()) != null) {
-                printQueryResult(getQueryResult(str.trim().split("\\W+")));
+                List<DataSource> queryResult = getQueryResult(str.trim().split("\\W+"));
+                if (queryResult.isEmpty()) {
+                    System.out.println("Not found in any data source.");
+                } else {
+                    for (DataSource dataSource : queryResult) {
+                        System.out.println(dataSource.getId());
+                    }
+                }
             }
         }
     }

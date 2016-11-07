@@ -15,8 +15,8 @@ public class InvertedIndexTest {
     private static InvertedIndex invIdx2 = new InvertedIndex();
     private static InvertedIndex invIdx3 = new InvertedIndex();
 
-    private boolean isEqualElementsInStrSets(Set<String> set1, Set<String> set2) {
-        return set1.containsAll(set2) && set2.containsAll(set1);
+    private boolean isEqualElementsInDataSrcLists(List<DataSource> list1, List<DataSource> list2) {
+        return list1.containsAll(list2) && list2.containsAll(list1);
     }
 
     private void checkIsAllDataSourcesIndexed(InvertedIndex invIdx, List<StringDataSource> dSrcList) throws Exception {
@@ -24,7 +24,7 @@ public class InvertedIndexTest {
             for (String wordFromStr : dSrc.getId().trim().split("\\W+")) {
                 wordFromStr = wordFromStr.toLowerCase();
                 assertTrue(invIdx.containsWord(wordFromStr));
-                assertTrue(invIdx.getDataSourceSet(wordFromStr).contains(dSrc.getId()));
+                assertTrue(invIdx.getDataSourceList(wordFromStr).contains(dSrc));
             }
         }
     }
@@ -87,25 +87,25 @@ public class InvertedIndexTest {
 
     @Test
     public void queryResultInvIdx1Test1() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList1.get(2).getId());
-        set.add(dSrcList1.get(4).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx1.getQueryResult("Index the for or".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList1.get(2));
+        list.add(dSrcList1.get(4));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx1.getQueryResult("Index the for or".trim().split("\\W+")), list));
     }
 
     @Test
     public void queryResultInvIdx1Test2() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList1.get(0).getId());
-        set.add(dSrcList1.get(1).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx1.getQueryResult("Structure lists forward".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList1.get(0));
+        list.add(dSrcList1.get(1));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx1.getQueryResult("Structure lists forward".trim().split("\\W+")), list));
     }
 
     @Test
     public void queryResultInvIdx1Test3() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList1.get(1).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx1.getQueryResult("words document is listing".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList1.get(1));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx1.getQueryResult("words document is listing".trim().split("\\W+")), list));
     }
 
     @Test
@@ -115,11 +115,11 @@ public class InvertedIndexTest {
 
     @Test
     public void queryResultInvIdx2Test() throws Exception {
-        Set<String> set = new HashSet<>();
+        List<DataSource> list = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            set.add(dSrcList2.get(i).getId());
+            list.add(dSrcList2.get(i));
         }
-        assertTrue(isEqualElementsInStrSets(invIdx2.getQueryResult("Hello world.".trim().split("\\W+")), set));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx2.getQueryResult("Hello world.".trim().split("\\W+")), list));
     }
 
     @Test
@@ -129,30 +129,30 @@ public class InvertedIndexTest {
 
     @Test
     public void queryResultInvIdx13Test1() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList3.get(0).getId());
-        set.add(dSrcList3.get(2).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx3.getQueryResult("Space this of a".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList3.get(0));
+        list.add(dSrcList3.get(2));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx3.getQueryResult("Space this of a".trim().split("\\W+")), list));
     }
 
     @Test
     public void queryResultInvIdx3Test2() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList3.get(1).getId());
-        set.add(dSrcList3.get(3).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx3.getQueryResult("The between for and".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList3.get(1));
+        list.add(dSrcList3.get(3));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx3.getQueryResult("The between for and".trim().split("\\W+")), list));
     }
 
     @Test
     public void queryResultInvIdx3Test3() throws Exception {
-        Set<String> set = new HashSet<>();
-        set.add(dSrcList3.get(3).getId());
-        assertTrue(isEqualElementsInStrSets(invIdx3.getQueryResult("distance between geometry".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        list.add(dSrcList3.get(3));
+        assertTrue(isEqualElementsInDataSrcLists(invIdx3.getQueryResult("distance between geometry".trim().split("\\W+")), list));
     }
 
     @Test
     public void queryResultInvIdx3Test4() throws Exception {
-        Set<String> set = new HashSet<>();
-        assertTrue(isEqualElementsInStrSets(invIdx3.getQueryResult("hello".trim().split("\\W+")), set));
+        List<DataSource> list = new ArrayList<>();
+        assertTrue(isEqualElementsInDataSrcLists(invIdx3.getQueryResult("hello".trim().split("\\W+")), list));
     }
 }
