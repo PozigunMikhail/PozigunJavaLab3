@@ -17,7 +17,7 @@ public class InvertedIndex {
                     invIdxMap.putIfAbsent(wordFromStr, new ArrayList<>());
                     if (!invIdxMap.get(wordFromStr).contains(dataSrc)) {
                         invIdxMap.get(wordFromStr).add(dataSrc);
-                        invIdxMap.get(wordFromStr).sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
+                        invIdxMap.get(wordFromStr).sort(DataSource::compareTo);
                     }
                 }
             }
@@ -48,17 +48,30 @@ public class InvertedIndex {
 
     private static <T> void intersectSortedLists(List<T> list1, List<T> list2, Comparator<T> cmp) {
         List<T> intersectionList = new ArrayList<>();
-        int idx1 = 0;
-        int idx2 = 0;
-        while (idx1 != list1.size() && idx2 != list2.size()) {
-            if (cmp.compare(list1.get(idx1), list2.get(idx2)) > 0) {
-                idx2++;
-            } else if (cmp.compare(list1.get(idx1), list2.get(idx2)) < 0) {
-                idx1++;
+        if (list1.isEmpty() || list2.isEmpty()) {
+            list1.clear();
+            return;
+        }
+        Iterator<T> it1 = list1.iterator();
+        Iterator<T> it2 = list2.iterator();
+        T curList1Elem = it1.next();
+        T curList2Elem = it2.next();
+        boolean isBothListsNotEnd = true;
+        while (isBothListsNotEnd) {
+            isBothListsNotEnd = false;
+            if (cmp.compare(curList1Elem, curList2Elem) > 0 && it2.hasNext()) {
+                curList2Elem = it2.next();
+                isBothListsNotEnd = true;
+            } else if (cmp.compare(curList1Elem, curList2Elem) < 0 && it1.hasNext()) {
+                curList1Elem = it1.next();
+                isBothListsNotEnd = true;
             } else {
-                intersectionList.add(list1.get(idx1));
-                idx1++;
-                idx2++;
+                intersectionList.add(curList1Elem);
+                if (it1.hasNext() && it2.hasNext()) {
+                    curList1Elem = it1.next();
+                    curList2Elem = it2.next();
+                    isBothListsNotEnd = true;
+                }
             }
         }
         list1.clear();
@@ -70,13 +83,12 @@ public class InvertedIndex {
         if (containsAllWords(words)) {
             List<String> wordsList = new ArrayList<>(Arrays.asList(words));
             wordsList.sort((o1, o2) -> getDataSourceList(o1.toLowerCase()).size() - getDataSourceList(o2.toLowerCase()).size());
-            Comparator<DataSource> cmp = (o1, o2) -> o1.getId().compareTo(o2.getId());
             for (String word : wordsList) {
                 word = word.toLowerCase();
                 if (intersectionDataSrcList.isEmpty()) {
                     intersectionDataSrcList.addAll(getDataSourceList(word));
                 } else {
-                    intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), cmp);
+                    intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), DataSource::compareTo);
                     if (intersectionDataSrcList.isEmpty()) {
                         break;
                     }
