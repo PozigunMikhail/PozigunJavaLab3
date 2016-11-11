@@ -86,7 +86,8 @@ public class InvertedIndex {
                 if (intersectionDataSrcList.isEmpty()) {
                     intersectionDataSrcList.addAll(getDataSourceList(word));
                 } else {
-                    List<DataSource> curIntersList = intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), DataSource::compareTo);
+                    List<DataSource> curIntersList = intersectSortedLists(intersectionDataSrcList,
+                            getDataSourceList(word), DataSource::compareTo);
                     intersectionDataSrcList.clear();
                     intersectionDataSrcList.addAll(curIntersList);
                     if (intersectionDataSrcList.isEmpty()) {
