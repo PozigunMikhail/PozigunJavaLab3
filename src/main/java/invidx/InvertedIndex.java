@@ -2,6 +2,7 @@ package invidx;
 
 import org.apache.commons.cli.*;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.*;
 
@@ -46,11 +47,10 @@ public class InvertedIndex {
         return !invIdxMap.containsKey(word) ? null : Collections.unmodifiableList(invIdxMap.get(word));
     }
 
-    private static <T> void intersectSortedLists(List<T> list1, List<T> list2, Comparator<T> cmp) {
+    private static <T> List<T> intersectSortedLists(List<T> list1, List<T> list2, Comparator<T> cmp) {
         List<T> intersectionList = new ArrayList<>();
         if (list1.isEmpty() || list2.isEmpty()) {
-            list1.clear();
-            return;
+            return intersectionList;
         }
         Iterator<T> it1 = list1.iterator();
         Iterator<T> it2 = list2.iterator();
@@ -74,8 +74,7 @@ public class InvertedIndex {
                 }
             }
         }
-        list1.clear();
-        list1.addAll(intersectionList);
+        return intersectionList;
     }
 
     public List<DataSource> getQueryResult(String[] words) {
@@ -88,7 +87,9 @@ public class InvertedIndex {
                 if (intersectionDataSrcList.isEmpty()) {
                     intersectionDataSrcList.addAll(getDataSourceList(word));
                 } else {
-                    intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), DataSource::compareTo);
+                    List<DataSource> curIntersList = intersectSortedLists(intersectionDataSrcList, getDataSourceList(word), DataSource::compareTo);
+                    intersectionDataSrcList.clear();
+                    intersectionDataSrcList.addAll(curIntersList);
                     if (intersectionDataSrcList.isEmpty()) {
                         break;
                     }
