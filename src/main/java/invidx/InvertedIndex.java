@@ -2,7 +2,6 @@ package invidx;
 
 import org.apache.commons.cli.*;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.*;
 
